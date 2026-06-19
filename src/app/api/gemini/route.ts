@@ -1,7 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { GoogleGenerativeAI } from "@google/generative-ai";
+import { z } from "zod";
 
-// Rate limiting (simple in-memory, use Redis for production)
+// ─── Request schema (Zod) ──────────────────────────────────────────────────
+const ChatMessageSchema = z.object({
+  role: z.enum(["user", "model"]),
+  content: z.string().min(1).max(8000),
+});
+
+const GeminiRequestSchema = z.object({
+  prompt: z.string().min(1, "prompt is required").max(4000, "prompt too long"),
+  systemPrompt: z.string().max(8000).optional(),
+  history: z.array(ChatMessageSchema).max(50).optional().default([]),
+});
+
+type GeminiRequest = z.infer<typeof GeminiRequestSchema>;
+
+// ─── Rate limiting (in-memory; use Upstash Redis in production) ───────────
 const requestCounts = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT = 20; // requests per hour per IP
 const WINDOW_MS = 60 * 60 * 1000;
@@ -23,18 +38,38 @@ function getRateLimitInfo(ip: string): { allowed: boolean; remaining: number } {
   return { allowed: true, remaining: RATE_LIMIT - entry.count };
 }
 
-// Input sanitization
+// ─── Input sanitization ────────────────────────────────────────────────────
 function sanitizeInput(text: string): string {
   return text
-    .replace(/<[^>]*>/g, "") // Strip HTML
-    .replace(/[<>'"]/g, "") // Strip XSS chars
+    .replace(/<[^>]*>/g, "") // Strip HTML tags
+    .replace(/[<>'"]/g, "") // Strip XSS-prone chars
+    .replace(/javascript:/gi, "") // Block JS injection
+    .replace(/on\w+\s*=/gi, "") // Block event handlers
     .trim()
-    .slice(0, 4000); // Max length
+    .slice(0, 4000);
 }
 
+// ─── CORS headers ─────────────────────────────────────────────────────────
+function getCorsHeaders(): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": process.env.NEXT_PUBLIC_APP_URL ?? "*",
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
+
+// ─── OPTIONS handler (preflight) ──────────────────────────────────────────
+export async function OPTIONS(): Promise<NextResponse> {
+  return new NextResponse(null, { status: 204, headers: getCorsHeaders() });
+}
+
+// ─── POST handler ─────────────────────────────────────────────────────────
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const corsHeaders = getCorsHeaders();
+
   // Rate limiting
-  const ip = request.headers.get("x-forwarded-for") ?? "unknown";
+  const forwarded = request.headers.get("x-forwarded-for");
+  const ip = forwarded ? forwarded.split(",")[0].trim() : "unknown";
   const { allowed, remaining } = getRateLimitInfo(ip);
 
   if (!allowed) {
@@ -45,35 +80,47 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         headers: {
           "Retry-After": "3600",
           "X-RateLimit-Remaining": "0",
+          ...corsHeaders,
         },
       }
     );
   }
 
-  // Parse request
-  let body: { prompt?: string; systemPrompt?: string; history?: Array<{ role: string; content: string }> };
+  // Parse and validate request body with Zod
+  let parsed: GeminiRequest;
   try {
-    body = await request.json();
+    const rawBody = await request.json();
+    const result = GeminiRequestSchema.safeParse(rawBody);
+
+    if (!result.success) {
+      const errors = result.error.issues.map((e: z.ZodIssue) => `${e.path.join(".")}: ${e.message}`).join(", ");
+      return NextResponse.json(
+        { error: `Validation failed: ${errors}` },
+        { status: 400, headers: corsHeaders }
+      );
+    }
+
+    parsed = result.data;
   } catch {
-    return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
+    return NextResponse.json(
+      { error: "Invalid JSON in request body" },
+      { status: 400, headers: corsHeaders }
+    );
   }
 
-  const { prompt, systemPrompt, history = [] } = body;
-
-  if (!prompt || typeof prompt !== "string") {
-    return NextResponse.json({ error: "prompt is required" }, { status: 400 });
-  }
-
+  const { prompt, systemPrompt, history } = parsed;
   const sanitizedPrompt = sanitizeInput(prompt);
 
   // Validate API key
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "your_gemini_api_key_here") {
-    // Return demo response when API key not configured
-    return NextResponse.json({
-      text: "👋 I'm CarbonWise AI's Eco Coach! To enable full AI responses, please add your Gemini API key to .env.local (GEMINI_API_KEY). \n\nIn the meantime, here's a tip: The average person can reduce their carbon footprint by 20-30% by switching to public transport twice a week, eating plant-based 3 meals per week, and choosing renewable energy. That's approximately 600-900 kg CO₂e saved per year! 🌿",
-      demo: true,
-    });
+    return NextResponse.json(
+      {
+        text: "👋 I'm CarbonWise AI's Eco Coach! To enable full AI responses, please add your Gemini API key to .env.local (GEMINI_API_KEY). \n\nIn the meantime, here's a tip: The average person can reduce their carbon footprint by 20-30% by switching to public transport twice a week, eating plant-based 3 meals per week, and choosing renewable energy. That's approximately 600-900 kg CO₂e saved per year! 🌿",
+        demo: true,
+      },
+      { headers: corsHeaders }
+    );
   }
 
   try {
@@ -91,7 +138,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // Build chat history
     const chat = model.startChat({
       history: history.map((h) => ({
-        role: h.role as "user" | "model",
+        role: h.role,
         parts: [{ text: h.content }],
       })),
     });
@@ -104,15 +151,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       {
         headers: {
           "X-RateLimit-Remaining": remaining.toString(),
+          "Cache-Control": "no-store",
+          ...corsHeaders,
         },
       }
     );
   } catch (error: unknown) {
-    console.error("[Gemini API Error]", error);
-    const message = error instanceof Error ? error.message : "AI service error";
+    // Don't leak internal error details to client
+    const isDev = process.env.NODE_ENV === "development";
+    const message = isDev && error instanceof Error ? error.message : "AI service temporarily unavailable";
+
     return NextResponse.json(
-      { error: `Failed to get AI response: ${message}` },
-      { status: 500 }
+      { error: message },
+      { status: 503, headers: corsHeaders }
     );
   }
 }

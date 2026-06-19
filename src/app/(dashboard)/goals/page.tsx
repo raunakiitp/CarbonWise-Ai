@@ -5,7 +5,7 @@ import { useGoals } from "@/hooks/useGoals";
 import { useAuthContext } from "@/context/AuthContext";
 import { formatCo2 } from "@/lib/carbon/calculator";
 import type { Goal } from "@/types";
-import { Plus, Trash2, CheckCircle, Loader2, Edit3 } from "lucide-react";
+import { Plus, Trash2, CheckCircle, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 
 const CATEGORIES = ["overall", "transportation", "energy", "food", "shopping", "water", "waste"] as const;
@@ -19,13 +19,13 @@ export default function GoalsPage() {
   const { goals, activeGoals, completedGoals, totalCarbonSaved, loading, addGoal, editGoal, removeGoal } = useGoals();
   const [showModal, setShowModal] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [form, setForm] = useState({
+  const [form, setForm] = useState(() => ({
     title: "",
     description: "",
     category: "overall" as Goal["category"],
     targetReduction: 100,
     targetDate: format(new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), "yyyy-MM-dd"),
-  });
+  }));
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();

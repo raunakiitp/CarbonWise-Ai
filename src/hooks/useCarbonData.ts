@@ -4,8 +4,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "./useAuth";
 import {
   saveCarbonResult,
-  getLatestCarbonResult,
-  getCarbonHistory,
   subscribeToCarbonResults,
 } from "@/lib/firebase/firestore";
 import { calculateCarbonFootprint } from "@/lib/carbon/calculator";
@@ -34,8 +32,8 @@ export function useCarbonData() {
 
   useEffect(() => {
     if (!user) {
-      setState((prev) => ({ ...prev, loading: false }));
-      return;
+      const timer = setTimeout(() => setState((prev) => ({ ...prev, loading: false })), 0);
+      return () => clearTimeout(timer);
     }
 
     const unsubscribe = subscribeToCarbonResults(user.uid, (results) => {

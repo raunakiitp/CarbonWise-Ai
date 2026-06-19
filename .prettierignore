@@ -1,0 +1,11 @@
+# Prettier ignore patterns
+node_modules
+.next
+.firebase
+out
+build
+coverage
+public
+*.md
+*.json
+package-lock.json

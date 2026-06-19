@@ -225,7 +225,7 @@ export default function ReportsPage() {
         ) : (
           <div style={{ textAlign: "center", padding: "var(--space-8)", color: "var(--text-muted)" }}>
             <Sparkles size={32} style={{ margin: "0 auto var(--space-3)" }} aria-hidden="true" />
-            <p>Click "Generate with AI" to get a personalized narrative analysis of your sustainability performance this month.</p>
+            <p>Click &quot;Generate with AI&quot; to get a personalized narrative analysis of your sustainability performance this month.</p>
           </div>
         )}
       </div>

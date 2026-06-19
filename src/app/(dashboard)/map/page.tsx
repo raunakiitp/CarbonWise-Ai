@@ -26,7 +26,7 @@ export default function MapPage() {
   const [activeFilter, setActiveFilter] = useState<MapPlaceType | "all">("all");
   const [selectedPlace, setSelectedPlace] = useState<GreenPlace | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
+  
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
 
   useEffect(() => {

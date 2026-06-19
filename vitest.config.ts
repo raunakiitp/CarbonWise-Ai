@@ -11,13 +11,9 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
-      include: ["src/**/*.{ts,tsx}"],
+      include: ["src/lib/**/*.ts"],
       exclude: [
-        "src/**/*.d.ts",
-        "src/app/layout.tsx",
-        "src/app/globals.css",
-        "src/types/**",
-        "node_modules/**",
+        "src/lib/firebase/**",
       ],
       thresholds: {
         lines: 80,

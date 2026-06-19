@@ -4,8 +4,8 @@ import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
 import { joinChallenge, updateChallengeProgress } from "@/lib/firebase/firestore";
 import type { CommunityChallenge } from "@/types";
-import { Users, Trophy, Calendar, ArrowRight, Loader2 } from "lucide-react";
-import { format, differenceInDays } from "date-fns";
+import { Users, Calendar, ArrowRight, Loader2 } from "lucide-react";
+import { differenceInDays } from "date-fns";
 
 const CHALLENGES: CommunityChallenge[] = [
   {

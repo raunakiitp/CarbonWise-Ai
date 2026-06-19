@@ -44,7 +44,7 @@ export default function PredictionsPage() {
   }
 
   const yearEndBau = prediction?.scenarioBau[11]?.predicted ?? 0;
-  const yearEndOptimistic = prediction?.scenarioOptimistic[11]?.predicted ?? 0;
+  
   const potentialSaving = prediction?.yearlyReductionPotential ?? 0;
 
   return (

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useGemini } from "@/hooks/useGemini";
 import { PROMPT_TEMPLATES } from "@/lib/gemini/client";
 import type { EducationModule, QuizQuestion } from "@/types";
-import { BookOpen, Brain, ChevronRight, Check, X, Loader2, ExternalLink } from "lucide-react";
+import { Brain, ChevronRight, Check, X, Loader2, ExternalLink } from "lucide-react";
 
 const MODULES: EducationModule[] = [
   {

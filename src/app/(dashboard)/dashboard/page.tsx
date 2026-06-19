@@ -5,9 +5,9 @@ import { useGoals } from "@/hooks/useGoals";
 import { useActions } from "@/hooks/useActions";
 import { useAuthContext } from "@/context/AuthContext";
 import { formatCo2, getComparisonLabel } from "@/lib/carbon/calculator";
-import { GLOBAL_AVERAGES } from "@/constants/emissions";
+
 import Link from "next/link";
-import { ArrowRight, TrendingDown, TrendingUp, Target, Leaf, Zap, Award } from "lucide-react";
+import { ArrowRight, TrendingDown, TrendingUp, Target, Leaf, Zap } from "lucide-react";
 import { CATEGORY_COLORS, CATEGORY_ICONS } from "@/constants/emissions";
 
 export default function DashboardPage() {

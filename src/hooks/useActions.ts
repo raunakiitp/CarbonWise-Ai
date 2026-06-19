@@ -5,7 +5,7 @@ import { useAuth } from "./useAuth";
 import { logGreenAction, subscribeToActions } from "@/lib/firebase/firestore";
 import { ACTION_SAVINGS } from "@/constants/emissions";
 import type { GreenAction, ActionType, ActionStreak } from "@/types";
-import { format, isYesterday, isToday } from "date-fns";
+import { isYesterday, isToday } from "date-fns";
 
 interface ActionsState {
   actions: GreenAction[];

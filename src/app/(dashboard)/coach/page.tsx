@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useGemini } from "@/hooks/useGemini";
 import { useCarbonData } from "@/hooks/useCarbonData";
-import { PROMPT_TEMPLATES } from "@/lib/gemini/client";
 import { formatCo2 } from "@/lib/carbon/calculator";
 import { Send, Loader2, RefreshCw, Sparkles } from "lucide-react";
 import type { CoachContext } from "@/lib/gemini/client";

@@ -20,7 +20,6 @@ import {
   serverTimestamp,
   Timestamp,
   DocumentData,
-  QueryConstraint,
   Unsubscribe,
 } from "firebase/firestore";
 import { db } from "./config";

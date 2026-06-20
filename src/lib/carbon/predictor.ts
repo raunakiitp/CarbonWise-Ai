@@ -59,7 +59,7 @@ function generateMonthlyPredictions(
   baseMonthly: number,
   monthlyTrend: number,
   startDate: Date,
-  scenario: string
+  _scenario: string
 ): MonthlyPrediction[] {
   const predictions: MonthlyPrediction[] = [];
 

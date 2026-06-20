@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useThemeContext } from "@/context/ThemeContext";
 import { useAuthContext } from "@/context/AuthContext";
@@ -143,7 +144,7 @@ export function Sidebar() {
               style={{ width: 32, height: 32, fontSize: "var(--text-xs)" }}
             >
               {profile?.photoURL ? (
-                <img src={profile.photoURL} alt={profile.displayName} />
+                <Image src={profile.photoURL} alt={profile.displayName ?? "User avatar"} width={32} height={32} style={{ borderRadius: "50%" }} />
               ) : (
                 (profile?.displayName?.charAt(0) ?? user?.email?.charAt(0) ?? "U").toUpperCase()
               )}

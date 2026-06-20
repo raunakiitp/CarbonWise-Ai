@@ -6,7 +6,7 @@ import { generatePredictions } from "@/lib/carbon/predictor";
 import { formatCo2 } from "@/lib/carbon/calculator";
 import { useAuthContext } from "@/context/AuthContext";
 import { GLOBAL_AVERAGES } from "@/constants/emissions";
-import { TrendingDown, TrendingUp, Info } from "lucide-react";
+import { TrendingDown, TrendingUp } from "lucide-react";
 
 export default function PredictionsPage() {
   const { user } = useAuthContext();

@@ -1,8 +1,9 @@
 "use client";
 
 import { useAuthContext } from "@/context/AuthContext";
-import { Bell, Search } from "lucide-react";
+import { Bell } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 const PAGE_TITLES: Record<string, string> = {
@@ -73,11 +74,12 @@ export function TopBar() {
             aria-label={`User avatar for ${profile?.displayName ?? user?.email}`}
           >
             {profile?.photoURL ? (
-              <img
+              <Image
                 src={profile.photoURL}
                 alt={profile.displayName ?? "User avatar"}
                 width={36}
                 height={36}
+                style={{ borderRadius: "50%" }}
               />
             ) : (
               (profile?.displayName?.charAt(0) ?? user?.email?.charAt(0) ?? "U").toUpperCase()

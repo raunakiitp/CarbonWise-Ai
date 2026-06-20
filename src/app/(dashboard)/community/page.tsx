@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useAuthContext } from "@/context/AuthContext";
-import { joinChallenge, updateChallengeProgress } from "@/lib/firebase/firestore";
+import { joinChallenge } from "@/lib/firebase/firestore";
 import type { CommunityChallenge } from "@/types";
 import { Users, Calendar, ArrowRight, Loader2 } from "lucide-react";
 import { differenceInDays } from "date-fns";

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useCarbonData } from "@/hooks/useCarbonData";
-import { formatCo2, calcSustainabilityScore } from "@/lib/carbon/calculator";
+import { formatCo2 } from "@/lib/carbon/calculator";
 import { CATEGORY_COLORS, CATEGORY_ICONS } from "@/constants/emissions";
 import type { CarbonInput } from "@/types";
 import { ChevronRight, ChevronLeft, Check, Loader2 } from "lucide-react";

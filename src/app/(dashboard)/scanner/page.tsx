@@ -146,6 +146,7 @@ export default function ScannerPage() {
 
             {preview ? (
               <div style={{ position: "relative" }}>
+                {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={preview} alt="Receipt preview" style={{ maxHeight: 200, borderRadius: "var(--radius-lg)", objectFit: "contain" }} />
                 <button
                   onClick={(e) => { e.stopPropagation(); reset(); }}

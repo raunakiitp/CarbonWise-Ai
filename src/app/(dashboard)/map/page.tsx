@@ -101,7 +101,7 @@ export default function MapPage() {
                       cursor: "pointer",
                       transition: "background var(--transition-fast)",
                     }}
-                    aria-selected={selectedPlace?.id === place.id}
+                    aria-pressed={selectedPlace?.id === place.id}
                     aria-label={`${place.name} - ${type?.label}`}
                     onMouseEnter={(e) => { if (selectedPlace?.id !== place.id) (e.currentTarget as HTMLElement).style.background = "var(--bg-muted)"; }}
                     onMouseLeave={(e) => { if (selectedPlace?.id !== place.id) (e.currentTarget as HTMLElement).style.background = "transparent"; }}
